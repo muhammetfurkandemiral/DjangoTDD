@@ -1,5 +1,6 @@
 import imp
 from turtle import title
+from urllib import response
 from django.test import TestCase
 from .models import Post
 from http import HTTPStatus
@@ -40,3 +41,22 @@ class HomepageTest(TestCase):
         self.assertContains(response, "Sample post 1")
         self.assertContains(response, "Sample post 2")
 
+class DetailPageTest(TestCase):
+    def setUp(self) -> None:
+        self.post = Post.objects.create(
+        title = "Learn Javascript in this 23 hour course",
+        body = "This is a beginner course on JS"
+    )
+
+    def test_detail_page_returns_correct_response(self):
+        response = self.client.get(self.post.get_absolute_url())
+
+        self.assertEqual(response.status_code, HTTPStatus.OK)
+        self.assertTemplateUsed(response, 'posts/detail.html')
+    
+    def test_detail_page_returns_correct_content(self):
+        response = self.client.get(self.post.get_absolute_url())
+
+        self.assertContains(response, self.post.title)
+        self.assertContains(response, self.post.body)
+        self.assertNotContains(response, self.post.create_at)
